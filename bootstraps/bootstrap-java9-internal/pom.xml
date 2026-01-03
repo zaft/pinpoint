@@ -121,6 +121,58 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <transformers>
+                        <!-- 合并META-INF/services下的文件 -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    </transformers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com</pattern>
+                                    <shadedPattern>graalvm.image.com</shadedPattern>
+                                    <excludes>
+                                        <exclude>com.navercorp.**</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io</pattern>
+                                    <shadedPattern>graalvm.image.io</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>android</pattern>
+                                    <shadedPattern>graalvm.image.android</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org</pattern>
+                                    <shadedPattern>graalvm.image.org</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>google</pattern>
+                                    <shadedPattern>graalvm.image.google</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax</pattern>
+                                    <shadedPattern>graalvm.image.javax</shadedPattern>
+                                    <excludes>
+                                        <exclude>javax.management.**</exclude>
+                                    </excludes>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

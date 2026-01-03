@@ -132,4 +132,80 @@
             </build>
         </profile>
     </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <transformers>
+                        <!-- 合并META-INF/services下的文件 -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                    </transformers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com</pattern>
+                                    <shadedPattern>graalvm.image.com</shadedPattern>
+                                    <excludes>
+                                        <exclude>com.navercorp.**</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io</pattern>
+                                    <shadedPattern>graalvm.image.io</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>android</pattern>
+                                    <shadedPattern>graalvm.image.android</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org</pattern>
+                                    <shadedPattern>graalvm.image.org</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>google</pattern>
+                                    <shadedPattern>graalvm.image.google</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javax</pattern>
+                                    <shadedPattern>graalvm.image.javax</shadedPattern>
+                                    <excludes>
+                                        <exclude>javax.management.**</exclude>
+                                    </excludes>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      tofile="/Users/xiezhiwei/project/study/graal/sg/pinpoint-agent/lib/${project.build.finalName}.jar"  overwrite="true" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
