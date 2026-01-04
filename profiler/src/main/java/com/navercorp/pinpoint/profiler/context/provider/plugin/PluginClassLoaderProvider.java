@@ -53,11 +53,11 @@ public class PluginClassLoaderProvider implements Provider<ClassLoader> {
             return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
                 @Override
                 public ClassLoader run() {
-                    return new URLClassLoader(urls, parentClassLoader);
+                    return new PluginClassLoader(urls, parentClassLoader);
                 }
             });
         }
-        return new URLClassLoader(urls, parentClassLoader);
+        return new PluginClassLoader(urls, parentClassLoader);
     }
 
     @Override

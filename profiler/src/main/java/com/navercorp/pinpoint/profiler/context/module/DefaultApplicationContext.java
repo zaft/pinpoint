@@ -49,10 +49,12 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.util.Objects;
+import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -93,6 +95,18 @@ public class DefaultApplicationContext implements ApplicationContext {
         }
 
         final Module applicationContextModule = moduleFactory.newModule(agentOption);
+        String us = System.getProperty("pinpoint.classLoader.useSystem");
+        if (Boolean.parseBoolean(us)) {
+            agentOption.getPluginJars().forEach(pj ->
+            {
+                try {
+                    agentOption.getInstrumentation().appendToSystemClassLoaderSearch(new JarFile(pj));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        }
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.profilerConfig = injector.getInstance(ProfilerConfig.class);

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.profiler.context.module.PluginClassLoader;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
@@ -69,13 +70,16 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final DynamicTransformerRegistry dynamicTransformerRegistry;
+    private final ClassLoader pluginClassLoader;
 
     @Inject
     public ClassFileTransformerProvider(ProfilerConfig profilerConfig,
                                         InstrumentConfig instrumentConfig,
                                         InstrumentMatcherCacheConfig instrumentMatcherCacheConfig,
                                         InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
-                                        DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
+                                        DynamicTransformTrigger dynamicTransformTrigger,
+                                        DynamicTransformerRegistry dynamicTransformerRegistry,
+                                        @PluginClassLoader ClassLoader pluginClassLoader) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.instrumentConfig = Objects.requireNonNull(instrumentConfig, "instrumentConfig");
         this.instrumentMatcherCacheConfig = Objects.requireNonNull(instrumentMatcherCacheConfig, "instrumentMatcherCacheConfig");
@@ -84,6 +88,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
         this.pluginContextLoadResult = Objects.requireNonNull(pluginContextLoadResult, "pluginContextLoadResult");
         this.dynamicTransformTrigger = Objects.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
         this.dynamicTransformerRegistry = Objects.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
+        this.pluginClassLoader = Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
     @Override
@@ -104,7 +109,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
         final List<String> allowJdkClassName = instrumentConfig.getAllowJdkClassName();
         final ClassFileFilter unmodifiableFilter = new UnmodifiableClassFilter(allowJdkClassName);
         return new DefaultClassFileTransformerDispatcher(pinpointClassFilter, unmodifiableFilter, transformerRegistry,
-                dynamicTransformerRegistry, lambdaClassFileResolver);
+                dynamicTransformerRegistry, lambdaClassFileResolver, pluginClassLoader);
     }
 
     private TransformerRegistry newTransformerRegistry() {

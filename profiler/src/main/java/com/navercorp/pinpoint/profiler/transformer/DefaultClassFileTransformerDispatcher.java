@@ -15,13 +15,14 @@
  */
 package com.navercorp.pinpoint.profiler.transformer;
 
+import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoader;
+import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
+import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-
 import java.util.Objects;
-import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
-import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
 
 
 /**
@@ -40,12 +41,14 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
     private final ClassFileFilter unmodifiableFilter;
 
     private final LambdaClassFileResolver lambdaClassFileResolver;
+    private final ClassLoader pluginClassLoader;
 
     public DefaultClassFileTransformerDispatcher(ClassFileFilter pinpointClassFilter,
                                                  ClassFileFilter unmodifiableFilter,
                                                  TransformerRegistry transformerRegistry,
                                                  DynamicTransformerRegistry dynamicTransformerRegistry,
-                                                 LambdaClassFileResolver lambdaClassFileResolver) {
+                                                 LambdaClassFileResolver lambdaClassFileResolver,
+                                                 ClassLoader pluginClassLoader) {
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
 
@@ -56,6 +59,7 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         this.transformerRegistry = Objects.requireNonNull(transformerRegistry, "transformerRegistry");
         this.dynamicTransformerRegistry = Objects.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
         this.lambdaClassFileResolver = Objects.requireNonNull(lambdaClassFileResolver, "lambdaClassFileResolver");
+        this.pluginClassLoader = Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
     @Override
@@ -74,6 +78,15 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
         final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, internalName);
         if (dynamicTransformer != null) {
+            if (pluginClassLoader instanceof PluginClassLoader) {
+                PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                if (pcl.getDynamicParent() == null) {
+                    pcl.setDynamicParent(classLoader);
+                }
+                if (pcl.getDynamicParent() == classLoader) {
+                    return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                }
+            }
             return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
         }
 
@@ -85,7 +98,15 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (transformer == null) {
             return null;
         }
-
+        if (pluginClassLoader instanceof PluginClassLoader) {
+            PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+            if (pcl.getDynamicParent() == null) {
+                pcl.setDynamicParent(classLoader);
+            }
+            if (pcl.getDynamicParent() == classLoader) {
+                return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+            }
+        }
         return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
     }
 
