@@ -80,6 +80,9 @@
                                     <shadedPattern>graalvm.image.javax</shadedPattern>
                                     <excludes>
                                         <exclude>javax.management.**</exclude>
+                                        <exclude>javax.crypto.**</exclude>
+                                        <exclude>javax.net.**</exclude>
+                                        <exclude>javax.security.**</exclude>
                                     </excludes>
                                 </relocation>
                             </relocations>
