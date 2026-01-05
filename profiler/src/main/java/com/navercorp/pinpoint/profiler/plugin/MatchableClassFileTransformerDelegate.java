@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import java.util.Objects;
+
+import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoader;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -61,6 +63,14 @@ public class MatchableClassFileTransformerDelegate implements MatchableClassFile
         try {
             // WARN external plugin api
             final TransformCallback transformCallback = transformCallbackProvider.getTransformCallback(instrumentContext, loader);
+            if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+                if (loader instanceof PluginClassLoader) {
+                    PluginClassLoader pcl = (PluginClassLoader) loader;
+                    if(pcl.getDynamicParent() != null) {
+                        return transformCallback.doInTransform(guard, pcl.getDynamicParent(), className, classBeingRedefined, protectionDomain, classfileBuffer);
+                    }
+                }
+            }
             return transformCallback.doInTransform(guard, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         } catch (InstrumentException e) {
             throw new PinpointException(e);

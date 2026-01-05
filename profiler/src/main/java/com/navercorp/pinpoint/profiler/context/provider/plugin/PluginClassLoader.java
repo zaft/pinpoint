@@ -23,13 +23,21 @@ public class PluginClassLoader extends URLClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        if(dynamicParent != null) {
-            Class<?> cls =  dynamicParent.loadClass(name);
-            if(cls != null) {
-                return cls;
+
+        synchronized (getClassLoadingLock(name)) {
+            try {
+                Class<?> cls = super.loadClass(name);
+                if (cls != null) {
+                    return cls;
+                }
+            } catch (ClassNotFoundException e) {
+                if (dynamicParent != null) {
+                    return dynamicParent.loadClass(name);
+                }
+                throw e;
             }
+            throw new ClassNotFoundException(name);
         }
-        return super.loadClass(name);
     }
 
     public ClassLoader getDynamicParent() {

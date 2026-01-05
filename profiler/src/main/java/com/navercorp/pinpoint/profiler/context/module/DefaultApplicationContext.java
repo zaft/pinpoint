@@ -95,18 +95,18 @@ public class DefaultApplicationContext implements ApplicationContext {
         }
 
         final Module applicationContextModule = moduleFactory.newModule(agentOption);
-        String us = System.getProperty("pinpoint.classLoader.useSystem");
-        if (Boolean.parseBoolean(us)) {
-            agentOption.getPluginJars().forEach(pj ->
-            {
-                try {
-                    agentOption.getInstrumentation().appendToSystemClassLoaderSearch(new JarFile(pj));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-        }
+//        String us = System.getProperty("pinpoint.classLoader.useSystem");
+//        if (Boolean.parseBoolean(us)) {
+//            agentOption.getPluginJars().forEach(pj ->
+//            {
+//                try {
+//                    agentOption.getInstrumentation().appendToSystemClassLoaderSearch(new JarFile(pj));
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//
+//        }
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.profilerConfig = injector.getInstance(ProfilerConfig.class);

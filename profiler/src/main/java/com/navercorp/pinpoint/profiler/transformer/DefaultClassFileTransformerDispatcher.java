@@ -64,6 +64,9 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
     @Override
     public byte[] transform(ClassLoader classLoader, String classInternalName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if(classInternalName.equals("org/springframework/web/servlet/FrameworkServlet")) {
+            System.out.println(classInternalName);
+        }
         if (!classLoaderFilter.accept(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
@@ -78,13 +81,16 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
         final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, internalName);
         if (dynamicTransformer != null) {
-            if (pluginClassLoader instanceof PluginClassLoader) {
-                PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-                if (pcl.getDynamicParent() == null) {
-                    pcl.setDynamicParent(classLoader);
-                }
-                if (pcl.getDynamicParent() == classLoader) {
-                    return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+
+            if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+                if (pluginClassLoader instanceof PluginClassLoader) {
+                    PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                    if (pcl.getDynamicParent() == null) {
+                        pcl.setDynamicParent(classLoader);
+                    }
+                    if (pcl.getDynamicParent() == classLoader) {
+                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                    }
                 }
             }
             return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
@@ -98,13 +104,15 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (transformer == null) {
             return null;
         }
-        if (pluginClassLoader instanceof PluginClassLoader) {
-            PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-            if (pcl.getDynamicParent() == null) {
-                pcl.setDynamicParent(classLoader);
-            }
-            if (pcl.getDynamicParent() == classLoader) {
-                return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+        if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+            if (pluginClassLoader instanceof PluginClassLoader) {
+                PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                if (pcl.getDynamicParent() == null) {
+                    pcl.setDynamicParent(classLoader);
+                }
+                if (pcl.getDynamicParent() == classLoader) {
+                    return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                }
             }
         }
         return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
