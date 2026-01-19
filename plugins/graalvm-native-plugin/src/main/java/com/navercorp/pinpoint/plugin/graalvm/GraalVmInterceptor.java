@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.plugin.graalvm;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.ReturnAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ReturnThrowAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.graalvm.DynamicClassLoader;
 
-public class GraalVmInterceptor implements ReturnAroundInterceptor<Class<?>> {
+public class GraalVmInterceptor implements ReturnThrowAroundInterceptor<Class<?>> {
 
     private ClassLoader dynamicClassLoader;
 
@@ -13,8 +13,13 @@ public class GraalVmInterceptor implements ReturnAroundInterceptor<Class<?>> {
 
     @Override
     public Class<?> before(Object target, Object[] args) {
+        if(target instanceof DynamicClassLoader) {
+            DynamicClassLoader dcl = (DynamicClassLoader) target;
+            if(dcl.getDynamicClassLoader() == null) {
+                dcl.setDynamicClassLoader(dynamicClassLoader);
+            }
+        }
         return null;
-//        throw new RuntimeException(target.getClass() +" not cast DynamicClassLoader");
     }
 
     @Override

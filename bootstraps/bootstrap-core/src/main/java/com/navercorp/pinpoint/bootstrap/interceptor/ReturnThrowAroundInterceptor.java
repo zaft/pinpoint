@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
-public interface ReturnAroundInterceptor<T> extends Interceptor {
+public interface ReturnThrowAroundInterceptor<T> extends ReturnAroundInterceptor<T> {
 
     T before(Object target, Object[] args) throws Throwable;
 

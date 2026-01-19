@@ -19,37 +19,35 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class ExceptionHandleReturnAroundInterceptor<T> implements ReturnAroundInterceptor<T>, DelegateInterceptor {
+public class ExceptionThrowHandleReturnAroundInterceptor<T> implements ReturnThrowAroundInterceptor<T>, DelegateInterceptor {
 
     private final ReturnAroundInterceptor<T> delegate;
     private final ExceptionHandler exceptionHandler;
 
-    public ExceptionHandleReturnAroundInterceptor(ReturnAroundInterceptor<T> delegate, ExceptionHandler exceptionHandler) {
+    public ExceptionThrowHandleReturnAroundInterceptor(ReturnAroundInterceptor<T> delegate, ExceptionHandler exceptionHandler) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
         this.exceptionHandler = Objects.requireNonNull(exceptionHandler, "exceptionHandler");
     }
 
     @Override
-    public T before(Object target, Object[] args) {
+    public T before(Object target, Object[] args) throws Throwable {
         try {
             return this.delegate.before(target, args);
         } catch (Throwable t) {
-            exceptionHandler.handleException(t);
+            throw t;
         }
-        return null;
     }
 
     @Override
-    @IgnoreMethod
-    public T after(Object target, Object[] args, Object result, Throwable throwable) {
+    public T after(Object target, Object[] args, Object result, Throwable throwable) throws Throwable {
         try {
             return this.delegate.after(target, args, result, throwable);
         } catch (Throwable t) {
-            exceptionHandler.handleException(t);
+            throw t;
         }
-        return null;
     }
 
+    @Override
     public ReturnAroundInterceptor<T> getDelegate() {
         return delegate;
     }
