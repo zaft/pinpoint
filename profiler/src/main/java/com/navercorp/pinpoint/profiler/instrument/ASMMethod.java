@@ -170,7 +170,7 @@ public class ASMMethod implements InstrumentMethod {
 
         // add before interceptor.
         if (isBeforeInterceptor(captureType) && interceptorDefinition.getBeforeMethod() != null) {
-            this.methodNode.addBeforeInterceptor(interceptorId, interceptorDefinition, apiId);
+            this.methodNode.addBeforeInterceptor(interceptor, interceptorId, interceptorDefinition, apiId);
             this.declaringClass.setModified(true);
         } else {
             if (isDebug) {
@@ -180,7 +180,7 @@ public class ASMMethod implements InstrumentMethod {
 
         // add after interface.
         if (isAfterInterceptor(captureType) && interceptorDefinition.getAfterMethod() != null) {
-            this.methodNode.addAfterInterceptor(interceptorId, interceptorDefinition, apiId);
+            this.methodNode.addAfterInterceptor(interceptor, interceptorId, interceptorDefinition, apiId);
             this.declaringClass.setModified(true);
         } else {
             if (isDebug) {

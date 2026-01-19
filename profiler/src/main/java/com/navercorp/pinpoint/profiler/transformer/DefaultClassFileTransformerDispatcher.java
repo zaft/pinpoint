@@ -84,17 +84,29 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (dynamicTransformer != null) {
 
             if (Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
-                if (pluginClassLoader instanceof PluginClassLoader) {
-                    PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-                    if (pcl.getDynamicParent() == null) {
-                        pcl.setDynamicParent(classLoader);
+
+                if (ClassLoader.getSystemClassLoader() == classLoader) {
+                    if (pluginClassLoader instanceof PluginClassLoader) {
+                        PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                        if (pcl.getDynamicClassLoader() == null) {
+                            pcl.setDynamicClassLoader(classLoader);
+                            return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                        }
                     }
-                    if (classLoader instanceof DynamicClassLoader) {
-                        DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
-                        dcl.setDynamicClassLoader(pcl);
-                        return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
-                    } else {
-                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                    return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                } else {
+                    if (pluginClassLoader instanceof PluginClassLoader) {
+                        PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                        if (pcl.getDynamicClassLoader() == null || pcl.getDynamicClassLoader() == ClassLoader.getSystemClassLoader()) {
+                            pcl.setDynamicClassLoader(classLoader);
+                        }
+                        if (classLoader instanceof DynamicClassLoader) {
+//                            DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
+//                            dcl.setDynamicClassLoader(pcl);
+                            return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                        } else {
+                            return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                        }
                     }
                 }
             }
@@ -110,17 +122,29 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
             return null;
         }
         if (Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
-            if (pluginClassLoader instanceof PluginClassLoader) {
-                PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-                if (pcl.getDynamicParent() == null) {
-                    pcl.setDynamicParent(classLoader);
+
+            if (ClassLoader.getSystemClassLoader() == classLoader) {
+                if (pluginClassLoader instanceof PluginClassLoader) {
+                    PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                    if (pcl.getDynamicClassLoader() == null) {
+                        pcl.setDynamicClassLoader(classLoader);
+                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                    }
                 }
-                if (classLoader instanceof DynamicClassLoader) {
-                    DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
-                    dcl.setDynamicClassLoader(pcl);
-                    return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
-                } else {
-                    return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+            } else {
+                if (pluginClassLoader instanceof PluginClassLoader) {
+                    PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
+                    if (pcl.getDynamicClassLoader() == null || pcl.getDynamicClassLoader() == ClassLoader.getSystemClassLoader()) {
+                        pcl.setDynamicClassLoader(classLoader);
+                    }
+                    if (classLoader instanceof DynamicClassLoader) {
+//                        DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
+//                        dcl.setDynamicClassLoader(pcl);
+                        return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                    } else {
+                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                    }
                 }
             }
         }

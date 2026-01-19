@@ -32,6 +32,7 @@ public class ExceptionHandleReturnAroundInterceptor<T> implements ReturnAroundIn
     }
 
     @Override
+    @IgnoreMethod
     public T before(Object target, Object[] args) {
         try {
             return this.delegate.before(target, args);
@@ -50,5 +51,9 @@ public class ExceptionHandleReturnAroundInterceptor<T> implements ReturnAroundIn
             exceptionHandler.handleException(t);
         }
         return null;
+    }
+
+    public ReturnAroundInterceptor<T> getDelegate() {
+        return delegate;
     }
 }

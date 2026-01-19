@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleReturnAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ReturnAroundInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import org.objectweb.asm.Opcodes;
@@ -22,6 +24,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Objects;
 
@@ -245,7 +248,7 @@ public class ASMMethodNodeAdapter {
         }
     }
 
-    public void addBeforeInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+    public void addBeforeInterceptor(Interceptor interceptor, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
 
         final InsnList instructions = new InsnList();
@@ -254,12 +257,12 @@ public class ASMMethodNodeAdapter {
         final String description = Type.getMethodDescriptor(interceptorDefinition.getBeforeMethod());
         instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, Type.getInternalName(interceptorDefinition.getInterceptorBaseClass()), "before", description, true));
         if(ReturnAroundInterceptor.class.isAssignableFrom(interceptorDefinition.getInterceptorClass()) ) {
-            test(instructions, interceptorDefinition);
+            test((ReturnAroundInterceptor)interceptor, instructions, interceptorDefinition);
         }
         this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), instructions);
     }
 
-    public void test(InsnList instructions, InterceptorDefinition interceptorDefinition) {
+    public void test(ReturnAroundInterceptor<?> interceptor, InsnList instructions, InterceptorDefinition interceptorDefinition) {
         LabelNode continueOriginal = new LabelNode();  // 继续执行原有逻辑
         LabelNode returnValue = new LabelNode();       // 返回值不为空，直接返回
         // 4. 复制返回值，一份用于判断，一份用于返回
@@ -267,16 +270,34 @@ public class ASMMethodNodeAdapter {
         // 5. 判断是否为空
         instructions.add(new JumpInsnNode(Opcodes.IFNULL, continueOriginal));
         // 6. 如果不为空，跳转到返回逻辑
-        instructions.add(new JumpInsnNode(Opcodes.GOTO, returnValue));
+//        instructions.add(new JumpInsnNode(Opcodes.GOTO, returnValue));
         // 7. 添加返回标签位置
-        instructions.add(returnValue);
-        Type returnType = Type.getReturnType(interceptorDefinition.getBeforeMethod());
-        instructions.add(new InsnNode(getReturnOpcode(returnType)));
+//        instructions.add(returnValue);
+//        Type returnType = Type.getReturnType(interceptorDefinition.getBeforeMethod());
+        Type returnType = returnType(interceptor);
+
+        instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, returnType.getInternalName()));
+        instructions.add(new InsnNode(Opcodes.ARETURN));
 
         // 9. 添加继续执行原有逻辑的标签
         instructions.add(continueOriginal);
         // 10. 弹出栈顶的null值（IFNULL判断后，栈顶是检查方法的返回值，已经知道是null）
         instructions.add(new InsnNode(Opcodes.POP));
+    }
+
+    private Type returnType(ReturnAroundInterceptor<?> interceptor) {
+        if(interceptor instanceof ExceptionHandleReturnAroundInterceptor) {
+            return returnType(((ExceptionHandleReturnAroundInterceptor)interceptor).getDelegate());
+        }
+        for (java.lang.reflect.Type gi : interceptor.getClass().getGenericInterfaces()) {
+            if(gi instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType)gi;
+                if(pt.getRawType().equals(ReturnAroundInterceptor.class)) {
+                    return Type.getType((Class)((ParameterizedType) pt.getActualTypeArguments()[0]).getRawType());
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -308,7 +329,7 @@ public class ASMMethodNodeAdapter {
 
 
 
-    public void addAfterInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+    public void addAfterInterceptor(Interceptor interceptor, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
 
         // add try catch block.
@@ -333,8 +354,14 @@ public class ASMMethodNodeAdapter {
         InsnList instructions = new InsnList();
         this.methodVariables.storeThrowableVar(instructions);
         invokeAfterInterceptor(instructions, interceptorDefinition, true);
-        // throw exception.
-        this.methodVariables.loadInterceptorThrowVar(instructions);
+        if(ReturnAroundInterceptor.class.isAssignableFrom(interceptor.getClass())) {
+//            Type returnType = returnType((ReturnAroundInterceptor)interceptor);
+//            instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, returnType.getInternalName()));
+            instructions.add(new InsnNode(Opcodes.ARETURN));
+        } else {
+            // throw exception.
+            this.methodVariables.loadInterceptorThrowVar(instructions);
+        }
         this.methodNode.instructions.insert(tryCatch.getEndLabelNode(), instructions);
         tryCatch.sort();
     }

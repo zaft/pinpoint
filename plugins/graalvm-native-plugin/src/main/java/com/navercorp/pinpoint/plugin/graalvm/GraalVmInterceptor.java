@@ -13,23 +13,23 @@ public class GraalVmInterceptor implements ReturnAroundInterceptor<Class<?>> {
 
     @Override
     public Class<?> before(Object target, Object[] args) {
-        if(target instanceof DynamicClassLoader) {
-            DynamicClassLoader dcl = (DynamicClassLoader) target;
-            if(dcl.getDynamicClassLoader() == null) {
-                dcl.setDynamicClassLoader(dynamicClassLoader);
-            }
-            try {
-               return dcl.getDynamicClassLoader().loadClass((String)args[0]);
-            } catch (ClassNotFoundException e) {
-            }
-        }
-
         return null;
 //        throw new RuntimeException(target.getClass() +" not cast DynamicClassLoader");
     }
 
     @Override
-    public Class<?> after(Object target, Object[] args, Object result, Throwable throwable) {
-        return (Class<?>) result;
+    public Class<?> after(Object target, Object[] args, Object result, Throwable throwable) throws Throwable {
+        if (throwable == null) {
+            return (Class<?>) result;
+        } else {
+            if (throwable instanceof ClassNotFoundException && target instanceof DynamicClassLoader) {
+                DynamicClassLoader dcl = (DynamicClassLoader) target;
+                if (dcl.getDynamicClassLoader() == null) {
+                    dcl.setDynamicClassLoader(dynamicClassLoader);
+                }
+                return dcl.getDynamicClassLoader().loadClass((String) args[0]);
+            }
+        }
+        throw throwable;
     }
 }

@@ -33,6 +33,8 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
 
     private final PluginsSetupResult pluginsSetupResult;
 
+    private ClassLoader pluginClassLoader;
+
     public DefaultPluginContextLoadResult(ProfilerPluginContextLoader profilerPluginContextLoader, ClassLoader pluginClassLoader) {
         Objects.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
         Objects.requireNonNull(pluginClassLoader, "pluginClassLoader");
