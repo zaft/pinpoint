@@ -21,26 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleStaticAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExceptionHandleScopedInterceptor0;
@@ -196,6 +177,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
         final ExceptionHandler exceptionHandler = exceptionHandlerFactory.getExceptionHandler();
         if (interceptor instanceof AroundInterceptor) {
             return new ExceptionHandleAroundInterceptor((AroundInterceptor) interceptor, exceptionHandler);
+        } if (interceptor instanceof ReturnAroundInterceptor) {
+            return new ExceptionHandleReturnAroundInterceptor<>((ReturnAroundInterceptor<?>) interceptor, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
             return new ExceptionHandleStaticAroundInterceptor((StaticAroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof AroundInterceptor5) {

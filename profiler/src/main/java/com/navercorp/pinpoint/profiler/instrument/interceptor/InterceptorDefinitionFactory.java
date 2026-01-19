@@ -16,16 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor1;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,6 +56,7 @@ public class InterceptorDefinitionFactory {
         final List<TypeHandler> typeHandlerList = new ArrayList<TypeHandler>();
 
         addTypeHandler(typeHandlerList, AroundInterceptor.class, InterceptorType.ARRAY_ARGS);
+        addTypeHandler(typeHandlerList, ReturnAroundInterceptor.class, InterceptorType.ARRAY_ARGS);
 
         addTypeHandler(typeHandlerList, AroundInterceptor0.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor1.class, InterceptorType.BASIC);

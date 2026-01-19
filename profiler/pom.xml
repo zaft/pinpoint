@@ -67,6 +67,8 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
+            <scope>system</scope>
+            <systemPath>/Users/xiezhiwei/project/study/graal/sg/pinpoint-agent/boot/pinpoint-bootstrap-core-2.5.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

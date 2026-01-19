@@ -60,7 +60,9 @@ public class URLClassLoaderHandler implements ClassInjector {
         try {
             if (classLoader instanceof URLClassLoader) {
                 final URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-                addPluginURLIfAbsent(urlClassLoader);
+                if(!Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+                    addPluginURLIfAbsent(urlClassLoader);
+                }
                 return (Class<T>) urlClassLoader.loadClass(className);
             }
         } catch (Exception e) {

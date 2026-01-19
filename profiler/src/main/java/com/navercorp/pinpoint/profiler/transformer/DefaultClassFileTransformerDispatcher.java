@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.transformer;
 
+import com.navercorp.pinpoint.bootstrap.plugin.graalvm.DynamicClassLoader;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoader;
 import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
@@ -82,13 +83,17 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         final ClassFileTransformer dynamicTransformer = dynamicTransformerRegistry.getTransformer(classLoader, internalName);
         if (dynamicTransformer != null) {
 
-            if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+            if (Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
                 if (pluginClassLoader instanceof PluginClassLoader) {
                     PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
                     if (pcl.getDynamicParent() == null) {
                         pcl.setDynamicParent(classLoader);
                     }
-                    if (pcl.getDynamicParent() == classLoader) {
+                    if (classLoader instanceof DynamicClassLoader) {
+                        DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
+                        dcl.setDynamicClassLoader(pcl);
+                        return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
+                    } else {
                         return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
                     }
                 }
@@ -104,13 +109,17 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
         if (transformer == null) {
             return null;
         }
-        if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
+        if (Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
             if (pluginClassLoader instanceof PluginClassLoader) {
                 PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
                 if (pcl.getDynamicParent() == null) {
                     pcl.setDynamicParent(classLoader);
                 }
-                if (pcl.getDynamicParent() == classLoader) {
+                if (classLoader instanceof DynamicClassLoader) {
+                    DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
+                    dcl.setDynamicClassLoader(pcl);
+                    return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
+                } else {
                     return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
                 }
             }
