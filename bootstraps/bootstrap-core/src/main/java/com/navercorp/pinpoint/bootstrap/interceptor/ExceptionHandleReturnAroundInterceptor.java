@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
+
 import java.util.Objects;
 
 /**

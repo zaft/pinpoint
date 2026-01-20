@@ -3,10 +3,16 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PluginClassLoader extends URLClassLoader {
 
-    private ClassLoader dynamicParent;
+    private final Set<ClassLoader> dynamicClassLoaders = new HashSet<>();
+
+    private final Set<String> loop = new HashSet<>();
 
 
     public PluginClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
@@ -25,26 +31,41 @@ public class PluginClassLoader extends URLClassLoader {
     public Class<?> loadClass(String name) throws ClassNotFoundException {
 
         synchronized (getClassLoadingLock(name)) {
+            if(loop.contains(name)) {
+                throw new ClassNotFoundException(name);
+            }
+            loop.add(name);
             try {
                 Class<?> cls = super.loadClass(name);
                 if (cls != null) {
                     return cls;
                 }
+                throw new ClassNotFoundException(name);
             } catch (ClassNotFoundException e) {
-                if (dynamicParent != null) {
-                    return dynamicParent.loadClass(name);
+                if (!dynamicClassLoaders.isEmpty()) {
+                    for (ClassLoader dynamicClassLoader : dynamicClassLoaders) {
+                        try {
+                           return dynamicClassLoader.loadClass(name);
+                        } catch (ClassNotFoundException ignored) {
+
+                        }
+                    }
                 }
                 throw e;
+            } finally {
+                loop.remove(name);
             }
-            throw new ClassNotFoundException(name);
         }
     }
 
-    public ClassLoader getDynamicParent() {
-        return dynamicParent;
-    }
+//    public ClassLoader getDynamicClassLoader() {
+//        return dynamicClassLoader;
+//    }
 
-    public void setDynamicParent(ClassLoader dynamicParent) {
-        this.dynamicParent = dynamicParent;
+    public void setDynamicClassLoader(ClassLoader dynamicClassLoader) {
+        if(dynamicClassLoader == null) {
+            return;
+        }
+        this.dynamicClassLoaders.add(dynamicClassLoader);
     }
 }
