@@ -101,6 +101,11 @@
             <version>${netty4.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.jetty.npn</groupId>
+            <artifactId>npn-api</artifactId>
+<!--            <scope>compile</scope>-->
+        </dependency>
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler-proxy</artifactId>
             <version>${netty4.version}</version>
@@ -251,6 +256,7 @@
                                         <exclude>javax.crypto.**</exclude>
                                         <exclude>javax.net.**</exclude>
                                         <exclude>javax.security.**</exclude>
+                                        <exclude>javax.naming.**</exclude>
                                     </excludes>
                                 </relocation>
                             </relocations>
