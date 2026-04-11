@@ -110,6 +110,7 @@
                                         <exclude>javax.crypto.**</exclude>
                                         <exclude>javax.net.**</exclude>
                                         <exclude>javax.security.**</exclude>
+                                        <exclude>javax.naming.**</exclude>
                                     </excludes>
                                 </relocation>
                             </relocations>

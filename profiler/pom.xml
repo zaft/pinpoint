@@ -27,7 +27,7 @@
     <artifactId>pinpoint-profiler</artifactId>
     <name>pinpoint-profiler</name>
     <packaging>jar</packaging>
-    
+
     <properties>
         <spring.version>${spring4.version}</spring.version>
     </properties>
@@ -251,6 +251,7 @@
                                         <exclude>javax.crypto.**</exclude>
                                         <exclude>javax.net.**</exclude>
                                         <exclude>javax.security.**</exclude>
+                                        <exclude>javax.naming.**</exclude>
                                     </excludes>
                                 </relocation>
                             </relocations>
