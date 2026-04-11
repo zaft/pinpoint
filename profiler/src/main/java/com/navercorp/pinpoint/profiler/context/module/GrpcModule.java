@@ -33,20 +33,12 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectExecutorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.*;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
@@ -128,11 +120,13 @@ public class GrpcModule extends PrivateModule {
 
         TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
         Key<EnhancedDataSender<MetaDataType>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
-        bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+//        bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        bind(agentDataSender).toProvider(EmptyAgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
         Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
-        bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+//        bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        bind(metadataDataSender).toProvider(EmptyMetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(metadataDataSender);
     }
 
@@ -144,7 +138,8 @@ public class GrpcModule extends PrivateModule {
 
         TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
         Key<DataSender<MetricType>> statDataSender = Key.get(statDataSenderType, StatDataSender.class);
-        bind(statDataSender).toProvider(StatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+//        bind(statDataSender).toProvider(StatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        bind(statDataSender).toProvider(EmptyStatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
     }
 
@@ -160,7 +155,8 @@ public class GrpcModule extends PrivateModule {
 
         TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
         Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
-        bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+//        bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        bind(spanDataSender).toProvider(EmptyDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(spanDataSender);
     }
 
