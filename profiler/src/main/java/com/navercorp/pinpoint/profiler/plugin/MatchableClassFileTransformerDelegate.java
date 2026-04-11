@@ -63,14 +63,6 @@ public class MatchableClassFileTransformerDelegate implements MatchableClassFile
         try {
             // WARN external plugin api
             final TransformCallback transformCallback = transformCallbackProvider.getTransformCallback(instrumentContext, loader);
-            if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
-                if (loader instanceof PluginClassLoader) {
-                    PluginClassLoader pcl = (PluginClassLoader) loader;
-                    if(pcl.getDynamicParent() != null) {
-                        return transformCallback.doInTransform(guard, pcl.getDynamicParent(), className, classBeingRedefined, protectionDomain, classfileBuffer);
-                    }
-                }
-            }
             return transformCallback.doInTransform(guard, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         } catch (InstrumentException e) {
             throw new PinpointException(e);

@@ -97,16 +97,8 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 //                } else {
                     if (pluginClassLoader instanceof PluginClassLoader) {
                         PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-                        if (pcl.getDynamicClassLoader() == null || pcl.getDynamicClassLoader() == ClassLoader.getSystemClassLoader()) {
-                            pcl.setDynamicClassLoader(classLoader);
-                        }
-                        if (classLoader instanceof DynamicClassLoader) {
-//                            DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
-//                            dcl.setDynamicClassLoader(pcl);
-                            return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
-                        } else {
-                            return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
-                        }
+                        pcl.setDynamicClassLoader(classLoader);
+                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, dynamicTransformer);
                     }
 //                }
             }
@@ -135,16 +127,8 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 //            } else {
                 if (pluginClassLoader instanceof PluginClassLoader) {
                     PluginClassLoader pcl = (PluginClassLoader) pluginClassLoader;
-                    if (pcl.getDynamicClassLoader() == null || pcl.getDynamicClassLoader() == ClassLoader.getSystemClassLoader()) {
-                        pcl.setDynamicClassLoader(classLoader);
-                    }
-                    if (classLoader instanceof DynamicClassLoader) {
-//                        DynamicClassLoader dcl = (DynamicClassLoader) classLoader;
-//                        dcl.setDynamicClassLoader(pcl);
-                        return baseClassFileTransformer.transform(classLoader, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
-                    } else {
-                        return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
-                    }
+                    pcl.setDynamicClassLoader(classLoader);
+                    return baseClassFileTransformer.transform(pcl, internalName, classBeingRedefined, protectionDomain, classFileBuffer, transformer);
                 }
 //            }
         }

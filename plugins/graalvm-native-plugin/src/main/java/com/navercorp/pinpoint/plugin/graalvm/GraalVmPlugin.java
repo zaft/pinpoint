@@ -32,6 +32,7 @@ public class GraalVmPlugin implements ProfilerPlugin, TransformTemplateAware {
         if(Boolean.parseBoolean(System.getProperty("pinpoint.classLoader.useSystem"))) {
             transformTemplate.transform("org.springframework.boot.loader.launch.LaunchedClassLoader", LaunchedClassLoaderTransform.class);
             transformTemplate.transform("com.oracle.svm.hosted.NativeImageClassLoader", LaunchedClassLoaderTransform.class);
+            transformTemplate.transform("org.springframework.aot.nativex.feature.ThrowawayClassLoader", ThrowawayClassLoaderTransform.class);
         }
     }
 

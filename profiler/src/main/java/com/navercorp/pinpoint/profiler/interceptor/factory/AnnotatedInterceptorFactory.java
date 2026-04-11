@@ -160,6 +160,8 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
             return new ExceptionHandleAroundInterceptor((AroundInterceptor) interceptor, exceptionHandler);
         } else if (interceptor instanceof ReturnThrowAroundInterceptor) {
             return new ExceptionThrowHandleReturnAroundInterceptor<>((ReturnAroundInterceptor<?>) interceptor, exceptionHandler);
+        }  else if (interceptor instanceof ReturnThrowBeforeInterceptor) {
+            return new ExceptionThrowHandleReturnBeforeInterceptor<>((ReturnAroundInterceptor<?>) interceptor, exceptionHandler);
         } else if (interceptor instanceof ReturnAroundInterceptor) {
             return new ExceptionHandleReturnAroundInterceptor<>((ReturnAroundInterceptor<?>) interceptor, exceptionHandler);
         } else if (interceptor instanceof StaticAroundInterceptor) {
