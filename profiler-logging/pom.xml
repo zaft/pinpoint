@@ -127,7 +127,7 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="/Users/xiezhiwei/project/study/graal/sg/pinpoint-agent/lib/${project.build.finalName}.jar"  overwrite="true" />
+                                      tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"  overwrite="true" />
                             </target>
                         </configuration>
                     </execution>

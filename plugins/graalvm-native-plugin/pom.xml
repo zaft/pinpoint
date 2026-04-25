@@ -18,7 +18,7 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>system</scope>
-            <systemPath>/Users/xiezhiwei/project/study/graal/sg/pinpoint-agent/boot/pinpoint-bootstrap-core-2.5.3.jar</systemPath>
+            <systemPath>${pinpoint.dist.dir}/boot/pinpoint-bootstrap-core-2.5.3.jar</systemPath>
         </dependency>
 
 
@@ -56,7 +56,7 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="/Users/xiezhiwei/project/study/graal/sg/pinpoint-agent/plugin/${project.build.finalName}.jar"  overwrite="true" />
+                                      tofile="${pinpoint.dist.dir}/plugin/${project.build.finalName}.jar"  overwrite="true" />
                             </target>
                         </configuration>
                     </execution>
