@@ -231,6 +231,8 @@
         <plugin.frontend.yarn.version>v1.22.19</plugin.frontend.yarn.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
         <lmax.disruptor.version>3.4.4</lmax.disruptor.version>
+        <jansi.version>2.4.0</jansi.version>
+        <osgi.version>4.3.1</osgi.version>
     </properties>
 
     <dependencies>
@@ -1397,6 +1399,17 @@
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${lmax.disruptor.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>${jansi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
