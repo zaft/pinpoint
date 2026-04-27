@@ -247,6 +247,10 @@ public class ASMMethodNodeAdapter {
         }
     }
 
+    public void addBeforeInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+        addBeforeInterceptor(null, interceptorId, interceptorDefinition, apiId);
+    }
+
     public void addBeforeInterceptor(Interceptor interceptor, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
 
@@ -326,7 +330,9 @@ public class ASMMethodNodeAdapter {
         }
     }
 
-
+    public void addAfterInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+        addAfterInterceptor(interceptorId, interceptorDefinition, apiId);
+    }
 
     public void addAfterInterceptor(Interceptor interceptor, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
         initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
@@ -355,7 +361,7 @@ public class ASMMethodNodeAdapter {
 
         // try catch handler.
         InsnList instructions = new InsnList();
-        if(ReturnAroundInterceptor.class.isAssignableFrom(interceptor.getClass())) {
+        if(interceptor !=null && ReturnAroundInterceptor.class.isAssignableFrom(interceptor.getClass())) {
             this.methodVariables.storeThrowableVar(instructions);
             invokeAfterInterceptor(instructions, interceptorDefinition, false);
             Type returnType = returnType((ReturnAroundInterceptor)interceptor);
