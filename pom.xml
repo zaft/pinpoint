@@ -230,6 +230,7 @@
         <plugin.frontend.node.version>v16.17.1</plugin.frontend.node.version>
         <plugin.frontend.yarn.version>v1.22.19</plugin.frontend.yarn.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
+        <lmax.disruptor.version>3.4.4</lmax.disruptor.version>
     </properties>
 
     <dependencies>
@@ -1390,6 +1391,12 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.10.10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>${lmax.disruptor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
