@@ -65,9 +65,6 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
 
     @Override
     public byte[] transform(ClassLoader classLoader, String classInternalName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        if(classInternalName.equals("org/springframework/web/servlet/FrameworkServlet")) {
-            System.out.println(classInternalName);
-        }
         if (!classLoaderFilter.accept(classLoader, classInternalName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
