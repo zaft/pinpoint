@@ -21,6 +21,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.memory;
  */
 public class DetailedMemoryMetricSnapshot {
 
+    public final static DetailedMemoryMetricSnapshot EMPTY = new DetailedMemoryMetricSnapshot(0d, 0d, 0d, 0d, 0d, 0d);
+
     private final double newGenUsage;
     private final double oldGenUsage;
     private final double survivorSpaceUsage;

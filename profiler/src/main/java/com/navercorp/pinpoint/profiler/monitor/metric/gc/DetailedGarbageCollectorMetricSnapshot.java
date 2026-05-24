@@ -21,6 +21,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.gc;
  */
 public class DetailedGarbageCollectorMetricSnapshot {
 
+    public final static DetailedGarbageCollectorMetricSnapshot EMPTY = new DetailedGarbageCollectorMetricSnapshot(0l, 0l);
+
     private final long gcNewCount;
     private final long gcNewTime;
 

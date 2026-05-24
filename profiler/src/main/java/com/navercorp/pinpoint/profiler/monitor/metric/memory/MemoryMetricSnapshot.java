@@ -21,6 +21,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.memory;
  */
 public class MemoryMetricSnapshot {
 
+    public final static MemoryMetricSnapshot EMPTY = new MemoryMetricSnapshot(0L,0L,0L,0L);
+
     private final long heapMax;
     private final long heapUsed;
     private final long nonHeapMax;

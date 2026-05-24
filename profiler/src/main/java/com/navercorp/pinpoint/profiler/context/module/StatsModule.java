@@ -19,15 +19,13 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.EmptyBufferMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.BufferMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedGarbageCollectorMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedMemoryMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.*;
 import com.navercorp.pinpoint.profiler.context.provider.stat.loadedclass.LoadedClassMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricProvider;
@@ -64,10 +62,14 @@ public class StatsModule extends AbstractModule {
         binder().disableCircularProxies();
 
         // gc
-        bind(MemoryMetric.class).toProvider(MemoryMetricProvider.class).in(Scopes.SINGLETON);
-        bind(DetailedMemoryMetric.class).toProvider(DetailedMemoryMetricProvider.class).in(Scopes.SINGLETON);
-        bind(GarbageCollectorMetric.class).toProvider(GarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
-        bind(DetailedGarbageCollectorMetric.class).toProvider(DetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+//        bind(MemoryMetric.class).toProvider(MemoryMetricProvider.class).in(Scopes.SINGLETON);
+        bind(MemoryMetric.class).toProvider(EmptyMemoryMetricProvider.class).in(Scopes.SINGLETON);
+//        bind(DetailedMemoryMetric.class).toProvider(DetailedMemoryMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DetailedMemoryMetric.class).toProvider(EmptyDetailedMemoryMetricProvider.class).in(Scopes.SINGLETON);
+//        bind(GarbageCollectorMetric.class).toProvider(GarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+        bind(GarbageCollectorMetric.class).toProvider(EmptyGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+//        bind(DetailedGarbageCollectorMetric.class).toProvider(DetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
+        bind(DetailedGarbageCollectorMetric.class).toProvider(EmptyDetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
 
 
         // cpu
@@ -77,7 +79,8 @@ public class StatsModule extends AbstractModule {
         bind(FileDescriptorMetric.class).toProvider(FileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
 
         // buffer
-        bind(BufferMetric.class).toProvider(BufferMetricProvider.class).in(Scopes.SINGLETON);
+//        bind(BufferMetric.class).toProvider(BufferMetricProvider.class).in(Scopes.SINGLETON);
+        bind(BufferMetric.class).toProvider(EmptyBufferMetricProvider.class).in(Scopes.SINGLETON);
 
         // transaction
         bind(TransactionMetric.class).toProvider(TransactionMetricProvider.class).in(Scopes.SINGLETON);
