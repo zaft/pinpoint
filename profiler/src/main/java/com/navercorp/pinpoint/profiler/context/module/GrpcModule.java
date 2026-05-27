@@ -28,10 +28,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcMessageToResultConverterProvider;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverterProvider;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.*;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.*;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -134,7 +131,8 @@ public class GrpcModule extends PrivateModule {
         // Stat
         TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>>() {};
         Key<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
-        bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
+//        bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(statMessageConverterKey).toProvider(EmptyGrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
 
         TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
         Key<DataSender<MetricType>> statDataSender = Key.get(statDataSenderType, StatDataSender.class);
