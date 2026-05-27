@@ -116,6 +116,12 @@ public class Java9ClassLoader extends URLClassLoader {
                             clazz = parent.loadClass(name);
                         } else {
                             clazz = bootLoader.findBootstrapClassOrNull(this, name);
+                            if (clazz == null) {
+                                try {
+                                    clazz = ClassLoader.getPlatformClassLoader().loadClass(name);
+                                } catch (ClassNotFoundException ignored2) {
+                                }
+                            }
                         }
                     } catch (ClassNotFoundException ignored) {
                     }

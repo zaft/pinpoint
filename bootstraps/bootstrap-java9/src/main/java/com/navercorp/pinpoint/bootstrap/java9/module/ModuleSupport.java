@@ -118,6 +118,9 @@ public class ModuleSupport {
         // java.desktop
         // pinpoint.agent/pinpoint.agent/org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:369)
         addPermissionToLog4jModule(agentModule);
+
+        JavaModule scriptingModule = loadModule("java.scripting");
+        agentModule.addReads(scriptingModule);
     }
 
     private void addPermissionToGuiceModule(JavaModule agentModule) {
