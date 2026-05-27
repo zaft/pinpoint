@@ -57,7 +57,9 @@ public class PluginClassLoaderProvider implements Provider<ClassLoader> {
                 }
             });
         }
-        return new PluginClassLoader(urls, parentClassLoader);
+        PluginClassLoader pcl =   new PluginClassLoader(urls, parentClassLoader);
+        pcl.setDynamicClassLoader(this.getClass().getClassLoader());
+        return pcl;
     }
 
     @Override
