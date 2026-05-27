@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.bootstrap.graalvm.PinpointRuntime;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolv
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
+import com.navercorp.pinpoint.profiler.graalvm.DefaultRuntimeBooter;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
@@ -89,6 +91,13 @@ public class DefaultAgent implements Agent {
 
         this.applicationContext = newApplicationContext(agentOption);
 
+        // GraalVM native-image: register the runtime-mode booter during build-mode premain so it
+        // is frozen into the image heap (reachable via this static → included without reflect-config
+        // or image-classpath tricks). PinpointRuntime.start(), woven into main(), invokes it at
+        // native runtime. premain runs on the agent ClassLoader, which can instantiate it directly.
+        if (Boolean.getBoolean("point.native.build")) {
+            PinpointRuntime.setBooter( new DefaultRuntimeBooter());
+        }
     }
 
     private void dumpAgentOption(AgentOption agentOption) {
