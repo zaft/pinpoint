@@ -27,7 +27,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public class DefaultAgentOption implements AgentOption {
-
+    private final Instrumentation instrumentation;
     private final String agentId;
     private final String agentName;
     private final String applicationName;
@@ -37,8 +37,9 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> pluginJars;
     private final List<String> bootstrapJarPaths;
 
-    public DefaultAgentOption(String agentId, String agentName, String applicationName, final boolean isContainer,
+    public DefaultAgentOption(Instrumentation instrumentation, String agentId, String agentName, String applicationName, final boolean isContainer,
                               final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
+        this.instrumentation = instrumentation;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
@@ -50,7 +51,7 @@ public class DefaultAgentOption implements AgentOption {
 
     @Override
     public Instrumentation getInstrumentation() {
-        throw new UnsupportedOperationException(DefaultAgentOption.class + " Unsupported Operation getInstrumentation");
+        return this.instrumentation;
     }
 
     @Override
