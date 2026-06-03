@@ -53,7 +53,7 @@ import java.util.Properties;
  */
 public class DefaultAgent implements Agent {
 
-    private final LoggingSystem loggingSystem;
+//    private final LoggingSystem loggingSystem;
     private final Logger logger;
 
     private final ProfilerConfig profilerConfig;
@@ -72,8 +72,8 @@ public class DefaultAgent implements Agent {
         this.profilerConfig = agentOption.getProfilerConfig();
 
         final Path logConfigPath = getLogConfigPath(profilerConfig);
-        this.loggingSystem = newLoggingSystem(logConfigPath);
-        this.loggingSystem.start();
+//        this.loggingSystem = newLoggingSystem(logConfigPath);
+//        this.loggingSystem.start();
 
         logger = LogManager.getLogger(this.getClass());
         dumpAgentOption(agentOption);
@@ -216,7 +216,7 @@ public class DefaultAgent implements Agent {
 
         // for testcase
         if (profilerConfig.getStaticResourceCleanup()) {
-            this.loggingSystem.stop();
+//            this.loggingSystem.stop();
         }
     }
 
