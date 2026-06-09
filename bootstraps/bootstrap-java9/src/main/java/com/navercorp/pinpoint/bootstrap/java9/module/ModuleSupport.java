@@ -120,7 +120,9 @@ public class ModuleSupport {
         addPermissionToLog4jModule(agentModule);
 
         JavaModule scriptingModule = loadModule("java.scripting");
+        JavaModule namingModule = loadModule("java.naming");
         agentModule.addReads(scriptingModule);
+        agentModule.addReads(namingModule);
     }
 
     private void addPermissionToGuiceModule(JavaModule agentModule) {

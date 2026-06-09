@@ -103,7 +103,13 @@
         <dependency>
             <groupId>org.eclipse.jetty.npn</groupId>
             <artifactId>npn-api</artifactId>
-<!--            <scope>compile</scope>-->
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty.alpn</groupId>
+            <artifactId>alpn-api</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -258,6 +264,7 @@
                                     <shadedPattern>graalvm.image.com</shadedPattern>
                                     <excludes>
                                         <exclude>com.navercorp.**</exclude>
+                                        <exclude>com.sun.management.**</exclude>
                                     </excludes>
                                 </relocation>
                                 <relocation>

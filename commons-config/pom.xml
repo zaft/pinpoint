@@ -73,6 +73,7 @@
                                     <shadedPattern>graalvm.image.com</shadedPattern>
                                     <excludes>
                                         <exclude>com.navercorp.**</exclude>
+                                        <exclude>com.sun.management.**</exclude>
                                     </excludes>
                                 </relocation>
                                 <relocation>

@@ -185,7 +185,6 @@
             <artifactId>pinpoint-profiler-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <!-- required java9 java.xml -->
         <!--<dependency>
             <groupId>xerces</groupId>
@@ -243,6 +242,7 @@
                                     <shadedPattern>graalvm.image.com</shadedPattern>
                                     <excludes>
                                         <exclude>com.navercorp.**</exclude>
+                                        <exclude>com.sun.management.**</exclude>
                                     </excludes>
                                 </relocation>
                                 <relocation>
