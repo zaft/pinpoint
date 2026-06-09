@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
@@ -96,8 +95,10 @@ public class GrpcModule extends PrivateModule {
         bind(rpcModuleLifeCycleKey).to(GrpcModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
 
-        NettyPlatformDependent nettyPlatformDependent = new NettyPlatformDependent(profilerConfig, System.getProperties());
-        nettyPlatformDependent.setup();
+        if (!Boolean.getBoolean("point.native.build")) {
+            NettyPlatformDependent nettyPlatformDependent = new NettyPlatformDependent(profilerConfig, System.getProperties());
+            nettyPlatformDependent.setup();
+        }
     }
 
     private void registerGrpcProviders(GrpcTransportConfig grpcTransportConfig) {
@@ -106,55 +107,80 @@ public class GrpcModule extends PrivateModule {
 
     private void bindAgentDataSender() {
         // Agent
-        TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<MetaDataType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<MetaDataType, GeneratedMessageV3>> metadataMessageConverterKey = Key.get(metadataMessageConverter, MetadataDataSender.class);
-        bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(metadataMessageConverterKey).toProvider(GrpcMetadataMessageConverterProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {};
+        TypeLiteral<MessageConverter<Object, ResultResponse>> resultMessageConverter = new TypeLiteral<MessageConverter<Object, ResultResponse>>() {
+        };
         Key<MessageConverter<Object, ResultResponse>> resultMessageConverterKey = Key.get(resultMessageConverter, ResultConverter.class);
-        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class ).in(Scopes.SINGLETON);
+        bind(resultMessageConverterKey).toProvider(GrpcMessageToResultConverterProvider.class).in(Scopes.SINGLETON);
         expose(resultMessageConverterKey);
 
-        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {};
+        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        };
         Key<EnhancedDataSender<MetaDataType>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
-//        bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(agentDataSender).toProvider(EmptyAgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        if (!Boolean.getBoolean("point.native.build")) {
+            bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(agentDataSender).toProvider(EmptyAgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        }
         expose(agentDataSender);
 
         Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
-//        bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(metadataDataSender).toProvider(EmptyMetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        if (!Boolean.getBoolean("point.native.build")) {
+            bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(metadataDataSender).toProvider(EmptyMetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        }
         expose(metadataDataSender);
     }
 
     private void bindStatDataSender() {
         // Stat
-        TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverter = new TypeLiteral<MessageConverter<MetricType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<MetricType, GeneratedMessageV3>> statMessageConverterKey = Key.get(statMessageConverter, StatDataSender.class);
-//        bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
-        bind(statMessageConverterKey).toProvider(EmptyGrpcStatMessageConverterProvider.class ).in(Scopes.SINGLETON);
 
-        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {};
+        if (!Boolean.getBoolean("point.native.build")) {
+            bind(statMessageConverterKey).toProvider(GrpcStatMessageConverterProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(statMessageConverterKey).toProvider(EmptyGrpcStatMessageConverterProvider.class).in(Scopes.SINGLETON);
+        }
+        TypeLiteral<DataSender<MetricType>> statDataSenderType = new TypeLiteral<DataSender<MetricType>>() {
+        };
         Key<DataSender<MetricType>> statDataSender = Key.get(statDataSenderType, StatDataSender.class);
-//        bind(statDataSender).toProvider(StatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(statDataSender).toProvider(EmptyStatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+
+        if (!Boolean.getBoolean("point.native.build")) {
+            bind(statDataSender).toProvider(StatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(statDataSender).toProvider(EmptyStatGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        }
         expose(statDataSender);
     }
 
     private void bindSpanDataSender() {
         // Span
-        TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {};
+        TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<SpanType, GeneratedMessageV3>>() {
+        };
         Key<MessageConverter<SpanType, GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanDataSender.class);
         // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
 
-        TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
+        TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {
+        };
         bind(spanPostProcessorType).toProvider(GrpcSpanProcessorProvider.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {};
+        TypeLiteral<DataSender<SpanType>> spanDataSenderType = new TypeLiteral<DataSender<SpanType>>() {
+        };
         Key<DataSender<SpanType>> spanDataSender = Key.get(spanDataSenderType, SpanDataSender.class);
-//        bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
-        bind(spanDataSender).toProvider(EmptyDataSenderProvider.class).in(Scopes.SINGLETON);
+        if (!Boolean.getBoolean("point.native.build")) {
+            bind(spanDataSender).toProvider(SpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        } else {
+            bind(spanDataSender).toProvider(EmptySpanGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        }
+
         expose(spanDataSender);
     }
 

@@ -49,11 +49,11 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyDataSenderProvider implements Provider<DataSender<SpanType>> {
+public class EmptySpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>> {
 
 
     @Inject
-    public EmptyDataSenderProvider(){};
+    public EmptySpanGrpcDataSenderProvider(){};
 
     @Override
     public DataSender<SpanType> get() {
