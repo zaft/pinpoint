@@ -34,8 +34,8 @@
     <properties>
         <jdk.version>8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-<!--        <jdk.version>9</jdk.version>-->
-<!--        <jdk.home>${env.JAVA_9_HOME}</jdk.home>-->
+        <!--        <jdk.version>9</jdk.version>-->
+        <!--        <jdk.home>${env.JAVA_9_HOME}</jdk.home>-->
     </properties>
 
     <dependencies>
@@ -86,7 +86,9 @@
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
-                        <goals><goal>add-source</goal></goals>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
                         <configuration>
                             <sources>
                                 <source>src/main/java9</source>
@@ -101,14 +103,14 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!-- jdk9 -->
-<!--                    <argLine>-->
-<!--                        &#45;&#45;add-exports java.base/jdk.internal.misc=ALL-UNNAMED-->
-<!--                    </argLine>-->
+                    <!--                    <argLine>-->
+                    <!--                        &#45;&#45;add-exports java.base/jdk.internal.misc=ALL-UNNAMED-->
+                    <!--                    </argLine>-->
 
                     <!-- jdk11 -->
-<!--                    <argLine>-->
-<!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
-<!--                    </argLine>-->
+                    <!--                    <argLine>-->
+                    <!--                        &#45;&#45;add-exports java.base/jdk.internal.access=ALL-UNNAMED-->
+                    <!--                    </argLine>-->
                     <encoding>${encoding}</encoding>
                 </configuration>
             </plugin>
@@ -118,9 +120,9 @@
                 <configuration>
                     <compilerArgs>
                         <!-- jdk9 -->
-<!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
+                        <!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.misc=ALL-UNNAMED</arg>-->
                         <!-- jdk 11 -->
-<!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>-->
+                        <!--                        <arg>&#45;&#45;add-exports</arg><arg>java.base/jdk.internal.access=ALL-UNNAMED</arg>-->
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -137,8 +139,10 @@
                 <configuration>
                     <transformers>
                         <!-- 合并META-INF/services下的文件 -->
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                        <transformer implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer
+                                implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
                     </transformers>
                     <filters>
                         <filter>
@@ -149,6 +153,7 @@
                                 <exclude>META-INF/*.RSA</exclude>
                             </excludes>
                         </filter>
+
                     </filters>
                 </configuration>
                 <executions>
@@ -233,7 +238,8 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"  overwrite="true" />
+                                      tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"
+                                      overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>

@@ -16,7 +16,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
@@ -68,7 +68,8 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <scope>system</scope>
-            <systemPath>${pinpoint.dist.dir}/boot/pinpoint-bootstrap-core-2.5.3.jar</systemPath>
+            <systemPath>${pinpoint.dist.dir}/boot/pinpoint-bootstrap-core-2.5.3.jar
+            </systemPath>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -213,10 +214,29 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-bootstrap</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons-buffer</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons-config</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons-profiler</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-grpc</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-plugins-loader</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-profiler-logging</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-rpc</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-thrift</exclude>
+                        </excludes>
+                    </artifactSet>
+
                     <transformers>
                         <!-- 合并META-INF/services下的文件 -->
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                        <transformer implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer
+                                implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
                     </transformers>
                     <filters>
                         <filter>
@@ -227,6 +247,7 @@
                                 <exclude>META-INF/*.RSA</exclude>
                             </excludes>
                         </filter>
+
                     </filters>
                 </configuration>
                 <executions>
@@ -311,7 +332,8 @@
                         <configuration>
                             <target>
                                 <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                      tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"  overwrite="true" />
+                                      tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"
+                                      overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>

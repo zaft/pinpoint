@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
@@ -67,10 +67,21 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-bootstrap-core</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
+                            <exclude>com.navercorp.pinpoint:pinpoint-commons-config</exclude>
+                        </excludes>
+                    </artifactSet>
+
                     <transformers>
                         <!-- 合并META-INF/services下的文件 -->
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                        <transformer implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer
+                                implementation="org.apache.logging.log4j.maven.plugins.shade.transformer.Log4j2PluginCacheFileTransformer"/>
                     </transformers>
                     <filters>
                         <filter>
