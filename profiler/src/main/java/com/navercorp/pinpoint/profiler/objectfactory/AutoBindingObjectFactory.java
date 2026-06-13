@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,17 @@
  */
 package com.navercorp.pinpoint.profiler.objectfactory;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
+import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByStaticFactoryMethod;
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.graalvm.TraceContextWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -21,20 +32,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByConstructor;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory.ByStaticFactoryMethod;
-import com.navercorp.pinpoint.exception.PinpointException;
-
 /**
  * @author Jongho Moon
- *
  */
 public class AutoBindingObjectFactory {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -58,7 +57,7 @@ public class AutoBindingObjectFactory {
         for (ArgumentProvider argumentProvider : argumentProviders) {
             commonProviders.add(argumentProvider);
         }
-        ProfilerPluginArgumentProvider profilerPluginArgumentProvider = new ProfilerPluginArgumentProvider(profilerConfig, traceContext, pluginContext);
+        ProfilerPluginArgumentProvider profilerPluginArgumentProvider = new ProfilerPluginArgumentProvider(profilerConfig, new TraceContextWrapper(traceContext), pluginContext);
         commonProviders.add(profilerPluginArgumentProvider);
         return commonProviders;
     }
@@ -67,13 +66,13 @@ public class AutoBindingObjectFactory {
         final Class<?> type = pluginContext.injectClass(classLoader, objectFactory.getClassName());
         final Object[] arguments = objectFactory.getArguments();
         final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
-        
+
         if (objectFactory instanceof ByConstructor) {
             return byConstructor(type, argumentsResolver);
         } else if (objectFactory instanceof ByStaticFactoryMethod) {
             return byStaticFactoryMethod(type, (ByStaticFactoryMethod) objectFactory, argumentsResolver);
         }
-        
+
         throw new IllegalArgumentException("Unknown objectFactory type: " + objectFactory);
     }
 
@@ -81,21 +80,21 @@ public class AutoBindingObjectFactory {
         final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
         return byConstructor(type, argumentsResolver);
     }
-    
+
     private Object byConstructor(Class<?> type, ArgumentsResolver argumentsResolver) {
         final ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
-        
+
         if (!resolver.resolve()) {
             throw new PinpointException("Cannot find suitable constructor for " + type.getName());
         }
-        
+
         final Constructor<?> constructor = resolver.getResolvedConstructor();
         final Object[] resolvedArguments = resolver.getResolvedArguments();
-        
+
         if (isDebug) {
             logger.debug("Create instance by constructor {}, with arguments {}", constructor, Arrays.toString(resolvedArguments));
         }
-        
+
         try {
             return constructor.newInstance(resolvedArguments);
         } catch (Exception e) {
@@ -105,11 +104,11 @@ public class AutoBindingObjectFactory {
 
     private Object byStaticFactoryMethod(Class<?> type, ByStaticFactoryMethod staticFactoryMethod, ArgumentsResolver argumentsResolver) {
         StaticMethodResolver resolver = new StaticMethodResolver(type, staticFactoryMethod.getFactoryMethodName(), argumentsResolver);
-        
+
         if (!resolver.resolve()) {
             throw new PinpointException("Cannot find suitable factory method " + type.getName() + "." + staticFactoryMethod.getFactoryMethodName());
         }
-        
+
         final Method method = resolver.getResolvedMethod();
         final Object[] resolvedArguments = resolver.getResolvedArguments();
 
@@ -124,15 +123,15 @@ public class AutoBindingObjectFactory {
         }
 
     }
-    
+
     private ArgumentsResolver getArgumentResolver(Object[] argument, ArgumentProvider[] providers) {
         final List<ArgumentProvider> merged = new ArrayList<>(commonProviders);
         merged.addAll(Arrays.asList(providers));
-        
+
         if (argument != null) {
             merged.add(new OrderedValueProvider(this, argument));
         }
-        
+
         return new ArgumentsResolver(merged);
     }
 }

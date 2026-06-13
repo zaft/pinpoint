@@ -47,63 +47,67 @@ public final class DefaultRuntimeBooter implements RuntimeBooter {
     @Override
     public void boot() {
 
-        // 0) re-declare `uses` for our named module. Build-time ModuleSupport.addUses(...) does
-        //    not survive into the native image (GraalVM substitutes java.lang.Module; the uses
-        //    Set is not serialized). Without this, ServiceLoader.load(...) from inside
-        //    pinpoint.agent throws ServiceConfigurationError: does not declare `uses`.
-        addRuntimeUses();
-        // 1) runtime config from the agent dir + the binary's own system properties / env
-        //    (NOT builder jvmArgs). Needs the deployed pinpoint-agent dir reachable at runtime:
-        //    pass -Dpinpoint.agent.path=/path/to/pinpoint-agent to the native binary.
-        agentDirectory = resolveAgentDir(resolveJavaAgentPath());
-        final Properties properties = loadProperties();
-        final ProfilerConfig config = ProfilerConfigLoader.load(properties);
-        final AgentOption option = new DefaultAgentOption(
-                new NoopInstrumentation(),
-                System.getProperty("pinpoint.agentId"),
-                System.getProperty("pinpoint.agentName"),
-                System.getProperty("pinpoint.applicationName"),
-                false,                                               // isContainer
-                config,
-                Collections.<String>emptyList(),                    // pluginJars: no weaving
-                Collections.<String>emptyList());                   // bootstrapJarPaths
+        try {
+            // 0) re-declare `uses` for our named module. Build-time ModuleSupport.addUses(...) does
+            //    not survive into the native image (GraalVM substitutes java.lang.Module; the uses
+            //    Set is not serialized). Without this, ServiceLoader.load(...) from inside
+            //    pinpoint.agent throws ServiceConfigurationError: does not declare `uses`.
+            addRuntimeUses();
+            // 1) runtime config from the agent dir + the binary's own system properties / env
+            //    (NOT builder jvmArgs). Needs the deployed pinpoint-agent dir reachable at runtime:
+            //    pass -Dpinpoint.agent.path=/path/to/pinpoint-agent to the native binary.
+            agentDirectory = resolveAgentDir(resolveJavaAgentPath());
+            final Properties properties = loadProperties();
+            final ProfilerConfig config = ProfilerConfigLoader.load(properties);
+            final AgentOption option = new DefaultAgentOption(
+                    new NoopInstrumentation(),
+                    System.getProperty("pinpoint.agentId"),
+                    System.getProperty("pinpoint.agentName"),
+                    System.getProperty("pinpoint.applicationName"),
+                    false,                                               // isContainer
+                    config,
+                    Collections.<String>emptyList(),                    // pluginJars: no weaving
+                    Collections.<String>emptyList());                   // bootstrapJarPaths
 
-        // 2) runtime-mode module (full composition). DEVELOPMENT = lazy: only the singletons we
-        //    fetch below + their deps are built, so the weaving spine (InstrumentEngine /
-        //    ClassFileTransformer, which would need the null Instrumentation) is never instantiated.
-        //    Build-mode drives the same modules with PRODUCTION via DefaultApplicationContext.
-        final Module module = RuntimeModeModule.create(option);
-        final Injector injector = Guice.createInjector(Stage.DEVELOPMENT, module);
+            // 2) runtime-mode module (full composition). DEVELOPMENT = lazy: only the singletons we
+            //    fetch below + their deps are built, so the weaving spine (InstrumentEngine /
+            //    ClassFileTransformer, which would need the null Instrumentation) is never instantiated.
+            //    Build-mode drives the same modules with PRODUCTION via DefaultApplicationContext.
+            final Module module = RuntimeModeModule.create(option);
+            final Injector injector = Guice.createInjector(Stage.DEVELOPMENT, module);
 
-        // 3) bring up gRPC transport (verified key from DefaultApplicationContext)
-        final ModuleLifeCycle rpc =
-                injector.getInstance(Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE")));
-        rpc.start();
+            // 3) bring up gRPC transport (verified key from DefaultApplicationContext)
+            final ModuleLifeCycle rpc =
+                    injector.getInstance(Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE")));
+            rpc.start();
 
-        // 4) inject the live TraceContext into the holder the interceptors read from
-        final TraceContext traceContext = injector.getInstance(TraceContext.class);
+            // 4) inject the live TraceContext into the holder the interceptors read from
+            final TraceContext traceContext = injector.getInstance(TraceContext.class);
 
-        PinpointRuntime.setTraceContext(traceContext);
+            PinpointRuntime.setTraceContext(traceContext);
 
-        // 5) start runtime threads (these classes clinit for the first time here → init-at-run-time)
-        injector.getInstance(DeadlockMonitor.class).start();
-        injector.getInstance(AgentInfoSender.class).start();
-        injector.getInstance(AgentStatMonitor.class).start();
+            // 5) start runtime threads (these classes clinit for the first time here → init-at-run-time)
+            injector.getInstance(DeadlockMonitor.class).start();
+            injector.getInstance(AgentInfoSender.class).start();
+            injector.getInstance(AgentStatMonitor.class).start();
 
-        // 6) shutdown hook registered now, at runtime (build-mode premain must NOT register it,
-        //    or it would keep the context graph reachable from the image heap)
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    rpc.shutdown();
-                } catch (Exception ignore) {
-                    // best-effort
+            // 6) shutdown hook registered now, at runtime (build-mode premain must NOT register it,
+            //    or it would keep the context graph reachable from the image heap)
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        rpc.shutdown();
+                    } catch (Exception ignore) {
+                        // best-effort
+                    }
                 }
-            }
-        }, "Pinpoint-runtime-shutdown"));
+            }, "Pinpoint-runtime-shutdown"));
+            System.out.println("[PinpointRuntime] runtime context booted, TraceContext wired: " + traceContext);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 
-        System.out.println("[PinpointRuntime] runtime context booted, TraceContext wired: " + traceContext);
     }
 
     // Mirrors ModuleSupport.prepareAgentModule(...) addUses calls. Reflection only — profiler is JDK 8 compiled.
@@ -158,6 +162,7 @@ public final class DefaultRuntimeBooter implements RuntimeBooter {
 
         return properties;
     }
+
     private SimpleProperty copyJavaSystemProperty() {
         return new PropertySnapshot(System.getProperties());
     }

@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 public final class PinpointRuntime {
 
     private static volatile TraceContext TRACE_CONTEXT;
+    private static volatile ClassLoader CLASS_LOADER;
 
     // Registered by build-mode premain (a stateless profiler-side impl → heap-safe).
     // Kept build-time-init: this reference is frozen into the image; TRACE_CONTEXT stays
@@ -46,15 +47,26 @@ public final class PinpointRuntime {
     private PinpointRuntime() {
     }
 
+    public static ClassLoader getAgentClassLoader() {
+        return CLASS_LOADER;
+    }
+
+    public static void setAgentClassLoader(ClassLoader agentClassLoader) {
+        CLASS_LOADER = agentClassLoader;
+    }
+
     public static void setTraceContext(TraceContext traceContext) {
         TRACE_CONTEXT = traceContext;
     }
+
 
     public static TraceContext getTraceContext() {
         return TRACE_CONTEXT;
     }
 
-    /** Called once by build-mode premain to hand over the runtime-mode booter. */
+    /**
+     * Called once by build-mode premain to hand over the runtime-mode booter.
+     */
     public static void setBooter(RuntimeBooter booter) {
         BOOTER = booter;
     }

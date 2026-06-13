@@ -21,20 +21,24 @@ import com.google.inject.Scopes;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.EmptyBufferMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.EmptyCpuLoadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSourceMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.BufferMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.EmptyFileDescriptorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricProvider;
-import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.*;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.EmptyDetailedGarbageCollectorMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.EmptyDetailedMemoryMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.EmptyGarbageCollectorMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.EmptyMemoryMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.loadedclass.LoadedClassMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
@@ -44,8 +48,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -71,12 +75,15 @@ public class StatsModule extends AbstractModule {
 //        bind(DetailedGarbageCollectorMetric.class).toProvider(DetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
         bind(DetailedGarbageCollectorMetric.class).toProvider(EmptyDetailedGarbageCollectorMetricProvider.class).in(Scopes.SINGLETON);
 
-
-        // cpu
-        bind(CpuLoadMetric.class).toProvider(CpuLoadMetricProvider.class).in(Scopes.SINGLETON);
-
-        // FD
-        bind(FileDescriptorMetric.class).toProvider(FileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
+        if (Boolean.getBoolean("point.native.build")) {
+            bind(CpuLoadMetric.class).toProvider(EmptyCpuLoadMetricProvider.class).in(Scopes.SINGLETON);
+            bind(FileDescriptorMetric.class).toProvider(EmptyFileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
+        } else {
+            // cpu
+            bind(CpuLoadMetric.class).toProvider(CpuLoadMetricProvider.class).in(Scopes.SINGLETON);
+            // FD
+            bind(FileDescriptorMetric.class).toProvider(FileDescriptorMetricProvider.class).in(Scopes.SINGLETON);
+        }
 
         // buffer
 //        bind(BufferMetric.class).toProvider(BufferMetricProvider.class).in(Scopes.SINGLETON);

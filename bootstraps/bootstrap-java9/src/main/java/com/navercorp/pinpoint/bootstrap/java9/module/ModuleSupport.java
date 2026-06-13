@@ -121,8 +121,10 @@ public class ModuleSupport {
 
         JavaModule scriptingModule = loadModule("java.scripting");
         JavaModule namingModule = loadModule("java.naming");
+        JavaModule baseModule = loadModule("java.base");
         agentModule.addReads(scriptingModule);
         agentModule.addReads(namingModule);
+        agentModule.addReads(baseModule);
     }
 
     private void addPermissionToGuiceModule(JavaModule agentModule) {
@@ -162,6 +164,10 @@ public class ModuleSupport {
         // java.lang.reflect.InaccessibleObjectException: Unable to make private java.nio.DirectByteBuffer(long,int) accessible: module java.base does not "opens java.nio" to module pinpoint.agent
         //   at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:337)
         baseModule.addOpens("java.nio", agentModule);
+
+        // HttpsURLConnectionImplInterceptor casts to sun.net.www.protocol.https.DelegateHttpsURLConnection
+        // native-image build-time parse fails to resolve without explicit export from java.base
+        baseModule.addExports("sun.net.www.protocol.https", agentModule);
 
         // for Java9DefineClass
         baseModule.addExports("jdk.internal.misc", agentModule);

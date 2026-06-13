@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.profiler.AgentInfoRuntimeSender;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.config.ContextConfig;
@@ -61,7 +62,7 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
     public AgentInfoSender get() {
         final EnhancedDataSender<MetaDataType> enhancedDataSender = this.enhancedDataSenderProvider.get();
         final AgentInfoFactory agentInfoFactory = this.agentInfoFactoryProvider.get();
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(enhancedDataSender, agentInfoFactory)
+        final AgentInfoSender agentInfoSender = new AgentInfoRuntimeSender.Builder(enhancedDataSender, agentInfoFactory)
                 .sendInterval(contextConfig.getAgentInfoSendRetryInterval())
                 .setMessageConverter(this.messageConverter)
                 .build();

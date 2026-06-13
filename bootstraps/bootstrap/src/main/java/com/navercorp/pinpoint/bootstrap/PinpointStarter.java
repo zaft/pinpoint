@@ -20,33 +20,21 @@ import com.navercorp.pinpoint.bootstrap.agentdir.LogDirCleaner;
 import com.navercorp.pinpoint.bootstrap.banner.PinpointBannerImpl;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
-import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
-import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.config.*;
+import com.navercorp.pinpoint.bootstrap.graalvm.PinpointRuntime;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.banner.PinpointBanner;
-import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
-import com.navercorp.pinpoint.common.util.PropertySnapshot;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.common.util.*;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Jongho Moon
- *
  */
 class PinpointStarter {
 
@@ -131,7 +119,7 @@ class PinpointStarter {
                 this.logger.info("defineAgentModule");
                 moduleBootLoader.defineAgentModule(agentClassLoader, urls);
             }
-
+            PinpointRuntime.setAgentClassLoader(agentClassLoader);
             final String bootClass = getBootClass();
             AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, agentClassLoader);
             logger.info(String.format("pinpoint agent [%s] starting...", bootClass));
@@ -317,7 +305,7 @@ class PinpointStarter {
         // pinpoint module first
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if(fileName != null) {
+            if (fileName != null) {
                 if (fileName.startsWith(PINPOINT_PREFIX)) {
                     orderList.add(path);
                 }
@@ -325,7 +313,7 @@ class PinpointStarter {
         }
         for (Path path : releaseLib) {
             Path fileName = path.getFileName();
-            if(fileName != null) {
+            if (fileName != null) {
                 if (!fileName.startsWith(PINPOINT_PREFIX)) {
                     orderList.add(path);
                 }

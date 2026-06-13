@@ -33,7 +33,7 @@ public class PluginClassLoader extends URLClassLoader {
             if (current.contains(name)) {
                 throw new ClassNotFoundException(name);
             }
-            if(name.equals("org.springframework.web.context.request.WebRequest")) {
+            if (name.equals("sun.net.www.protocol.https.HttpsURLConnectionImpl")) {
                 System.out.println();
             }
             try {
@@ -43,14 +43,16 @@ public class PluginClassLoader extends URLClassLoader {
                     return cls;
                 }
             } catch (ClassNotFoundException e) {
-                if (!dynamicParents.isEmpty()) {
-                    for (ClassLoader dynamicParent : dynamicParents) {
-                        try {
-                            Class<?> cls = dynamicParent.loadClass(name);
-                            if (cls != null) {
-                                return cls;
+                synchronized (dynamicParents) {
+                    if (!dynamicParents.isEmpty()) {
+                        for (ClassLoader dynamicParent : dynamicParents) {
+                            try {
+                                Class<?> cls = dynamicParent.loadClass(name);
+                                if (cls != null) {
+                                    return cls;
+                                }
+                            } catch (ClassNotFoundException cnf) {
                             }
-                        } catch (ClassNotFoundException cnf) {
                         }
                     }
                 }
@@ -83,7 +85,10 @@ public class PluginClassLoader extends URLClassLoader {
 
     public void setDynamicClassLoader(ClassLoader classLoader) {
         if (classLoader != null)
-            dynamicParents.add(classLoader);
+            synchronized (dynamicParents) {
+                dynamicParents.add(classLoader);
+            }
+
     }
 
 }

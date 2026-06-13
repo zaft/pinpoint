@@ -105,6 +105,9 @@ public class Java9ClassLoader extends URLClassLoader {
         synchronized (getClassLoadingLock(name)) {
             // First, check if the class has already been loaded
             Class clazz = findLoadedClass(name);
+            if (name.equals("sun.net.www.protocol.https.HttpsURLConnectionImpl")) {
+                System.out.println();
+            }
             if (clazz == null) {
                 if (onLoadClass(name)) {
                     // load a class used for Pinpoint itself by this ClassLoader
