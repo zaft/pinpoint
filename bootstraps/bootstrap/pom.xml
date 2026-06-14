@@ -67,6 +67,8 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <outputFile>${project.build.directory}/${project.build.finalName}-shade.jar</outputFile>
                     <artifactSet>
                         <excludes>
                             <exclude>com.navercorp.pinpoint:pinpoint-annotations</exclude>

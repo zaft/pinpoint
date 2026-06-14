@@ -32,6 +32,8 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <outputFile>${project.build.directory}/${project.build.finalName}-shade.jar</outputFile>
                     <transformers>
                         <!-- 合并META-INF/services下的文件 -->
                         <transformer

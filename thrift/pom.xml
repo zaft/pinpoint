@@ -145,6 +145,8 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <outputFile>${project.build.directory}/${project.build.finalName}-shade.jar</outputFile>
                     <artifactSet>
                         <excludes>
                             <exclude>com.navercorp.pinpoint:pinpoint-commons</exclude>
@@ -252,8 +254,10 @@
                         </goals>
                         <configuration>
                             <target>
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                <copy file="${project.build.directory}/${project.build.finalName}-shade.jar"
+
                                       tofile="${pinpoint.dist.dir}/lib/${project.build.finalName}.jar"
+
                                       overwrite="true"/>
                             </target>
                         </configuration>
