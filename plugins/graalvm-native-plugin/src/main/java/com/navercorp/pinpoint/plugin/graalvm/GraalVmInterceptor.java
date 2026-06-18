@@ -13,12 +13,6 @@ public class GraalVmInterceptor implements ReturnThrowAroundInterceptor<Class<?>
 
     @Override
     public Class<?> before(Object target, Object[] args) {
-        if(target instanceof DynamicClassLoader) {
-            DynamicClassLoader dcl = (DynamicClassLoader) target;
-            if(dcl.getDynamicClassLoader() != null) {
-                dcl.setDynamicClassLoader(dynamicClassLoader);
-            }
-        }
         return null;
     }
 
@@ -27,10 +21,8 @@ public class GraalVmInterceptor implements ReturnThrowAroundInterceptor<Class<?>
         if (throwable == null) {
             return (Class<?>) result;
         } else {
-            if (throwable instanceof ClassNotFoundException && target instanceof DynamicClassLoader) {
-                DynamicClassLoader dcl = (DynamicClassLoader) target;
-                dcl.setDynamicClassLoader(dynamicClassLoader);
-                return dcl.getDynamicClassLoader().loadClass((String) args[0]);
+            if (throwable instanceof ClassNotFoundException) {
+                return dynamicClassLoader.loadClass((String) args[0]);
             }
         }
         throw throwable;

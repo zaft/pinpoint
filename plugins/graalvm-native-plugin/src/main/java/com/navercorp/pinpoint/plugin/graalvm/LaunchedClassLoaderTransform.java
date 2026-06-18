@@ -18,7 +18,7 @@ public class LaunchedClassLoaderTransform implements TransformCallback {
         if (!target.isInterceptable()) {
             return null;
         }
-        target.addField(DynamicClassLoader.class);
+//        target.addField(DynamicClassLoader.class);
         InstrumentUtils.findMethod(target, "loadClass",  "java.lang.String", "boolean")
                 .addInterceptor(GraalVmInterceptor.class, new Object[]{loader});
 
