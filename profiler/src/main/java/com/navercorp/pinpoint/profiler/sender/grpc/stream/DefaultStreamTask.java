@@ -51,6 +51,8 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
         StreamJob<ReqT> job = new StreamJob<ReqT>() {
             @Override
             public Future<?> start(final ClientCallStreamObserver<ReqT> requestStream) {
+
+                System.out.println("DefaultStreamTask StreamJob start");
                 Runnable runnable = DefaultStreamTask.this.newRunnable(requestStream, latch);
                 StreamExecutor<ReqT> streamExecutor = streamExecutorFactory.newStreamExecutor();
                 return streamExecutor.execute(runnable);
@@ -81,20 +83,28 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
             private void dispatch(ClientCallStreamObserver<ReqT> stream) {
                 logger.info("dispatch start {}", this);
                 FinishStatus status = FinishStatus.UNKNOWN;
+                System.out.println("[PP-TRACE] DefaultStreamTask start");
 
                 try {
 //            while (true) {
                     final Thread thread = Thread.currentThread();
                     while (!thread.isInterrupted()) {
                         final M message = queue.take();
-                        if (stream.isReady()) {
+                        final boolean ready = stream.isReady();
+                        System.out.println("[PP-TRACE] DefaultStreamTask consume msg=" + message.getClass().getSimpleName() + " stream.isReady=" + ready);
+                        if (ready) {
                             try {
+                                System.out.println("[PP-TRACE] DefaultStreamTask -> dispatcher.onDispatch");
                                 dispatcher.onDispatch(stream, message);
+                                System.out.println("[PP-TRACE] DefaultStreamTask dispatcher.onDispatch returned");
                             } catch (Exception e) {
+                                System.out.println("[PP-TRACE] DefaultStreamTask dispatcher.onDispatch FAILED: " + e);
+                                e.printStackTrace();
                                 logger.warn("dispatch failed", e);
                             }
                             failState.success();
                         } else {
+                            System.out.println("[PP-TRACE] DefaultStreamTask stream NOT ready, dropping msg");
                             failState.fail();
 
                             if (failState.isFailure()) {
@@ -113,6 +123,7 @@ public class DefaultStreamTask<M, ReqT, ResT> implements StreamTask<M, ReqT> {
                     logger.error("Unexpected DispatchThread error {}/{}", Thread.currentThread().getName(), this, th);
                 }
 
+                System.out.println("[PP-TRACE] DefaultStreamTask end");
                 logger.info("dispatch thread end status:{} {}", status, this);
                 latch.countDown();
             }

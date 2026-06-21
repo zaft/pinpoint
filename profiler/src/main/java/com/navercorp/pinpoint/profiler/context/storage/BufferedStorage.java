@@ -96,6 +96,9 @@ public class BufferedStorage implements Storage {
         if (isDebug) {
             logger.debug("Flush {}", span);
         }
+
+        System.out.println("[PP-TRACE] dataSender = " + this.dataSender.getClass());
+        System.out.println("[PP-TRACE] BufferedStorage.store(Span) -> dataSender.send, sender=" + this.dataSender);
         final boolean success = this.dataSender.send(span);
         if (!success) {
             // WARN : Do not call span.toString ()
@@ -117,7 +120,9 @@ public class BufferedStorage implements Storage {
         if (isDebug) {
             logger.debug("Flush {}", spanChunk);
         }
+        System.out.println("[PP-TRACE] BufferedStorage.sendSpanChunk -> dataSender.send, sender=" + this.dataSender + ", events=" + spanEventList.size());
         final boolean success = this.dataSender.send(spanChunk);
+        System.out.println("[PP-TRACE] BufferedStorage.sendSpanChunk result=" + success);
         if (!success) {
             // WARN : Do not call span.toString ()
             // concurrentmodificationexceptionr may occur in spanProcessV2

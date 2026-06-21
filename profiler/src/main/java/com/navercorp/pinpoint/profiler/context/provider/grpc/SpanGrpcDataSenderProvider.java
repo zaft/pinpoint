@@ -90,6 +90,8 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
 
     @Override
     public DataSender<SpanType> get() {
+        System.out.println("[PP-HEADER] SpanGrpcDataSenderProvider.get headerFactory@"
+                + System.identityHashCode(headerFactory));
         final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
         final int collectorPort = grpcTransportConfig.getSpanCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isSpanSslEnable();

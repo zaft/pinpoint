@@ -64,21 +64,27 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
     public final MessageDispatcher<SpanType, PSpanMessage> dispatcher = new MessageDispatcher<SpanType, PSpanMessage>() {
         @Override
         public void onDispatch(ClientCallStreamObserver<PSpanMessage> stream, SpanType data) {
+            System.out.println("[PP-TRACE] SpanGrpc.dispatcher.onDispatch data=" + data.getClass().getSimpleName());
             final GeneratedMessageV3 message = messageConverter.toMessage(data);
+            System.out.println("[PP-TRACE] SpanGrpc.dispatcher converted msgType=" + (message == null ? "null" : message.getClass().getSimpleName()));
             if (isDebug) {
                 logger.debug("Send message={}", debugLog(message));
             }
             if (message instanceof PSpanChunk) {
                 final PSpanChunk spanChunk = (PSpanChunk) message;
                 final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpanChunk(spanChunk).build();
+                System.out.println("[PP-TRACE] SpanGrpc.dispatcher stream.onNext PSpanChunk");
                 stream.onNext(spanMessage);
+                System.out.println("[PP-TRACE] SpanGrpc.dispatcher stream.onNext PSpanChunk RETURNED");
                 attemptRenew();
                 return;
             }
             if (message instanceof PSpan) {
                 final PSpan pSpan = (PSpan) message;
                 final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpan(pSpan).build();
+                System.out.println("[PP-TRACE] SpanGrpc.dispatcher stream.onNext PSpan");
                 stream.onNext(spanMessage);
+                System.out.println("[PP-TRACE] SpanGrpc.dispatcher stream.onNext PSpan RETURNED");
                 attemptRenew();
                 return;
             }
@@ -113,11 +119,15 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
         ClientStreamingProvider<PSpanMessage, Empty> clientStreamProvider = new ClientStreamingProvider<PSpanMessage, Empty>() {
             @Override
             public ClientCallStreamObserver<PSpanMessage> newStream(ResponseStreamObserver<PSpanMessage, Empty> response) {
+
+                System.out.println("SpanGrpcDataSender ClientStreamingProvider newStream [" + SpanGrpcDataSender.this.managedChannel +"]");
                 final ManagedChannel managedChannel = SpanGrpcDataSender.this.managedChannel;
                 String authority = managedChannel.authority();
                 final ConnectivityState state = managedChannel.getState(false);
                 SpanGrpcDataSender.this.logger.info("newStream {}/{} state:{} isShutdown:{} isTerminated:{}", id, authority, state, managedChannel.isShutdown(), managedChannel.isTerminated());
-
+                managedChannel.notifyWhenStateChanged(ConnectivityState.CONNECTING, () -> {
+                    System.out.println("SpanGrpcDataSender ClientStreamingProvider newStream [" + ConnectivityState.CONNECTING +"]");
+                });
                 SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
                 return (ClientCallStreamObserver<PSpanMessage>) spanStub.sendSpan(response);
             }
@@ -125,6 +135,8 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
         };
         this.clientStreamService = new ClientStreamingService<PSpanMessage, Empty>(clientStreamProvider, reconnector);
         reconnectJob.run();
+
+        System.out.println("SpanGrpcDataSender init");
     }
 
     private void attemptRenew() {
@@ -156,6 +168,7 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
 
     private void startStream() {
         try {
+            System.out.println("SpanGrpcDataSender start");
             StreamTask<SpanType, PSpanMessage> streamTask = new DefaultStreamTask<>(id, clientStreamService,
                     this.streamExecutorFactory, this.queue, this.dispatcher, failState);
             streamTask.start();

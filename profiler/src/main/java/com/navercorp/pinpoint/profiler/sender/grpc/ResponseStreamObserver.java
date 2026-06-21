@@ -41,6 +41,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void beforeStart(final ClientCallStreamObserver<ReqT> requestStream) {
+        System.out.println("ResponseStreamObserver beforeStart");
         logger.info("beforeStart {}", listener);
         requestStream.setOnReadyHandler(new Runnable() {
             private final AtomicLong isReadyCounter = new AtomicLong(0);
@@ -65,6 +66,7 @@ public class ResponseStreamObserver<ReqT, ResT> implements ClientResponseObserve
 
     @Override
     public void onError(Throwable t) {
+        t.printStackTrace();
         final StatusError statusError = StatusErrors.throwable(t);
         if (statusError.isSimpleError()) {
             logger.info("Failed to stream, name={}, cause={}", listener, statusError.getMessage());

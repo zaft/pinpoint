@@ -119,9 +119,12 @@ public abstract class GrpcDataSender<T> implements DataSender<T> {
 
     @Override
     public boolean send(final T data) {
+        System.out.println("[PP-TRACE] GrpcDataSender(" + name + ").send queue.offer queueSize=" + this.queue.size() + " data=" + data.getClass().getSimpleName());
         if (this.queue.offer(data)) {
+            System.out.println("[PP-TRACE] GrpcDataSender(" + name + ").send queued OK");
             return true;
         }
+        System.out.println("[PP-TRACE] GrpcDataSender(" + name + ").send queue FULL, dropping; size=" + this.queue.size());
         if (logger.isDebugEnabled()) {
             logger.debug("reject message queue size:{}", this.queue.size());
         } else {

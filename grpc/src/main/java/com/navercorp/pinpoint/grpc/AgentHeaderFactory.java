@@ -43,6 +43,11 @@ public class AgentHeaderFactory implements HeaderFactory {
     }
 
     public Metadata newHeader() {
+        System.out.println("[PP-HEADER] new HeaderFactory@" + System.identityHashCode(this)
+                + " agentId=" + agentId + " appName=" + applicationName
+                + " startTime=" + agentStartTime
+                + " thread=" + Thread.currentThread().getName());
+        new Throwable("HEADER-CTOR").printStackTrace();
         Metadata headers = new Metadata();
         headers.put(Header.AGENT_ID_KEY, agentId);
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);

@@ -14,10 +14,12 @@ import com.navercorp.pinpoint.bootstrap.graalvm.RuntimeBooter;
 import com.navercorp.pinpoint.common.util.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.module.ModuleLifeCycle;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
+import io.grpc.Metadata;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
@@ -104,6 +106,10 @@ public final class DefaultRuntimeBooter implements RuntimeBooter {
                 }
             }, "Pinpoint-runtime-shutdown"));
             System.out.println("[PinpointRuntime] runtime context booted, TraceContext wired: " + traceContext);
+            HeaderFactory hf = injector.getInstance(HeaderFactory.class);
+            System.out.println("[PP-BOOT] runtime HeaderFactory@" + System.identityHashCode(hf));
+            Metadata md = hf.newHeader();
+            System.out.println("[PP-BOOT] runtime headers = " + md);
         } catch (Throwable e) {
             e.printStackTrace();
         }
